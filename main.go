@@ -14,27 +14,27 @@ func main() {
 	commandLineArgs := os.Args[1:]
 	arguments := parsing.Arguments {
 		&parsing.ArgumentConfig{
-			Name: "-nme",
+			Name: OPTION_PREFIX + "nme",
 			DefaultValue: "new-project",
-			AllowedValues: []string { "any" },
+			AllowedValues: []string { parsing.ANY },
 		},
 		&parsing.ArgumentConfig{
-			Name: "-rte",
-			DefaultValue: "new-project",
-			AllowedValues: []string { "any" },
+			Name: OPTION_PREFIX + "rte",
+			DefaultValue: "./",
+			AllowedValues: []string { parsing.ANY },
 		},
 		&parsing.ArgumentConfig{
-			Name: "-lng",
+			Name: OPTION_PREFIX + "lng",
 			DefaultValue: "go",
 			AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r" },
 		},
 		&parsing.ArgumentConfig{
-			Name: "-lic",
+			Name: OPTION_PREFIX + "lic",
 			DefaultValue: "mit",
 			AllowedValues: []string { "mit", "apache" },
 		},
 		&parsing.ArgumentConfig{
-			Name: "-dcs",
+			Name: OPTION_PREFIX + "dcs",
 			DefaultValue: "all",
 			AllowedValues: []string { "all", "license", "ignore", "readme" },
 		},

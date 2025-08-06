@@ -2,7 +2,10 @@ package parsing
 
 import (
 	"strings"
+	"slices"
 )
+
+const ANY = "any"
 
 type ArgumentConfig struct {
 	Name string
@@ -13,14 +16,15 @@ type ArgumentConfig struct {
 
 type Arguments []*ArgumentConfig
 
-// ParseFullArgument parses and validates a command-line argument with the specified format.
+// ValidateAndExtractArgument parses and validates a command-line argument with
+// the specified format.
 // Parameters:
 //   - arg: the full command-line argument to parse
 //   - prefix: expected argument prefix (e.g., "--")
 //   - sign: separator between argument and value (e.g., "=")
 //   - size: length of the argument name
-// Returns the argument name and its value if valid, empty strings otherwise.
-func ParseFullArgument(arg, prefix, sign string, size int) (string, string) {
+// Returns the argument and its value if valid, empty strings otherwise.
+func ValidateAndExtractArgument(arg, prefix, sign string, size int) (string, string) {
 	expectedSize := len(prefix) + size
 	if len(arg) < expectedSize { return "", "" }
 	if !strings.HasPrefix(arg, prefix) { return "", "" }
@@ -29,8 +33,20 @@ func ParseFullArgument(arg, prefix, sign string, size int) (string, string) {
 	return arg[:signIndex], arg[signIndex + 1:]
 }
 
-func ValidateArgumentValue() bool {
-	return true
+// ValidateArgumentValue validates if the received value matches the allowed values
+// in the provided argument configuration.
+// Parameters:
+//   - value: value to be validated
+//   - argConfig: argument configuration containing allowed values and defaults
+// Returns the validated value and true if valid, default value and false otherwise.
+func ValidateArgumentValue(value string, argConfig ArgumentConfig) (string, bool) {
+	if valid := slices.Contains(argConfig.AllowedValues, ANY); valid {
+		return value, valid
+	}
+	if valid := slices.Contains(argConfig.AllowedValues, value); valid {
+		return value, valid
+	}
+	return argConfig.DefaultValue, false
 }
 
 // ProcessArguments parses a slice of command-line arguments and validates them 
@@ -42,10 +58,12 @@ func ValidateArgumentValue() bool {
 //   - sign: separator between argument and value (e.g., "=")
 //   - size: length of the argument name
 func ProcessArguments(args []string, configs Arguments, prefix, sign string, size int) {
+	for _, config := range configs {
+		config.CurrentValue = config.DefaultValue
+	}
 	if len(args) < 2 { return }
 	for _, fullArg := range args {
-		arg, val := ParseFullArgument(fullArg, prefix, sign, size)
-		// Validate argument
+		arg, val := ValidateAndExtractArgument(fullArg, prefix, sign, size)
 		var config *ArgumentConfig
 		for _, argConfig := range configs {
 			if argConfig.Name == arg {
@@ -54,11 +72,8 @@ func ProcessArguments(args []string, configs Arguments, prefix, sign string, siz
 			}
 		}
 		if config == nil { continue }
-		if val == "" { 
-			config.CurrentValue = config.DefaultValue
-		} else {
-			// TODO: Validate value using ValidateArgumentValue function.
-			config.CurrentValue = val
-		}
+		val, ok := ValidateArgumentValue(val, *config)
+		if !ok { continue }
+		config.CurrentValue = val
 	}
 }
