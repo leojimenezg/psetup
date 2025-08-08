@@ -61,6 +61,13 @@ type ItemConfig struct {
 
 type Configs []ItemConfig
 
+// CreateFile creates a new file based on the provided configuration.
+// The function handles extension formatting automatically, adding a dot prefix if not present.
+// If a template path is specified, the file content is read from the template file;
+// otherwise, an empty file is created.
+// Parameters:
+//   - item: ItemConfig struct containing file name, extension, type, creation path, and template path
+// Returns nil if successful, or an error of type InvalidTypeError, TemplateError, or CreationError.
 func CreateFile(item ItemConfig) error {
 	if item.Type != FILE { return InvalidTypeError{ Type: item.Type } }
 	var fullPath string
@@ -86,6 +93,11 @@ func CreateFile(item ItemConfig) error {
 	return nil
 }
 
+// CreateDirectory creates a new directory and necessary parent directories based on the provided configuration.
+// The function uses os.MkdirAll to ensure all parent directories in the path are created if they don't exist.
+// Parameters:
+//   - item: ItemConfig struct containing directory name, type, and creation path
+// Returns nil if successful, or an error of type InvalidTypeError, or CreationError.
 func CreateDirectory(item ItemConfig) error {
 	if item.Type != DIR { return InvalidTypeError{ Type: item.Type } }
 	fullPath := filepath.Join(item.CreationPath, item.Name)
@@ -94,6 +106,11 @@ func CreateDirectory(item ItemConfig) error {
 	return nil
 }
 
+// CreateItems iterates through a Configs slice and creates each item based on its type.
+// The function processes all items regardless of individual failures, collecting any errors encountered.
+// Parameters:
+//   - items: Configs slice containing all ItemConfig structs to create
+// Returns nil if everything is successful, or a slice of all errors encountered.
 func CreateItems(items Configs) []error {
 	var errors []error
 	for _, item := range items {
