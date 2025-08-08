@@ -94,7 +94,24 @@ func CreateDirectory(item ItemConfig) error {
 	return nil
 }
 
-// TODO: Complete function to iterate on a slice of items.
-func CreateItems(items *Configs) error {
-	return nil
+func CreateItems(items Configs) []error {
+	var errors []error
+	for _, item := range items {
+		switch item.Type {
+		case FILE:
+			errFile := CreateFile(item)
+			if errFile != nil {
+				errors = append(errors, errFile)
+			}
+		case DIR:
+			errDir := CreateDirectory(item)
+			if errDir != nil {
+				errors = append(errors, errDir)
+			}
+		default:
+			errors = append(errors, InvalidTypeError{ Type: item.Type })
+		}
+	}
+	if len(errors) == 0 { return nil }
+	return errors
 }
