@@ -27,7 +27,7 @@ func main() {
 		&argparse.ArgumentConfig{
 			Name: OPTION_PREFIX + "lng",
 			DefaultValue: "go",
-			AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r" },
+			AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r", "txt" },
 		},
 		&argparse.ArgumentConfig{
 			Name: OPTION_PREFIX + "lic",
@@ -41,21 +41,41 @@ func main() {
 		},
 	}
 	argparse.ProcessArguments(commandLineArgs, arguments, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
-	item1 := itemgen.ItemConfig{ Name: "test", Type: itemgen.DIR, CreationPath: "./", }
-	errDir := itemgen.CreateDirectory(item1)
-	if errDir == nil {
-		fmt.Println("directory created successfully")
-		item2 := itemgen.ItemConfig{
-			Name: "test", Extension: "txt", Type: itemgen.FILE, 
-			CreationPath: item1.CreationPath + "/" + item1.Name, TemplatePath: "./templates/ignore.txt",
-		}
-		errFile := itemgen.CreateFile(item2)
-		if errFile != nil {
-			fmt.Printf("could not create file: %v\n", errFile)
-		} else {
-			fmt.Println("file created successfully")
-		}
-	} else {
-		fmt.Printf("could not creat directory: %v\n", errDir)
+	var rteArg argparse.ArgumentConfig
+	var lngArg argparse.ArgumentConfig
+	for _, arg := range arguments {
+		if arg.Name == "-rte" { rteArg = *arg }
+		if arg.Name == "-lng" { lngArg = *arg }
 	}
+	directories := itemgen.Configs{
+		{ Name: "dir1", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
+		{ Name: "dir2", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
+		{ Name: "dir3", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
+	}
+	files := itemgen.Configs{
+		{ 
+			Name: "file1", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
+			CreationPath: rteArg.CurrentValue + "/dir1", TemplatePath: "./templates/ignore.txt",
+		},
+		{ 
+			Name: "file2", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
+			CreationPath: rteArg.CurrentValue + "/dir2", TemplatePath: "./templates/readme.txt",
+		},
+		{ 
+			Name: "file3", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
+			CreationPath: rteArg.CurrentValue + "/dir3", TemplatePath: "./templates/license/mit.txt",
+		},
+	}
+	errDirs := itemgen.CreateItems(directories)
+	if errDirs != nil {
+		fmt.Printf("could not create all directories: %v", errDirs)
+		return
+	}
+	fmt.Println("all directories successfully created")
+	errFiles := itemgen.CreateItems(files)
+	if errFiles != nil {
+		fmt.Printf("could not create all files: %v", errFiles)
+		return
+	}
+	fmt.Println("all files successfully created")
 }
