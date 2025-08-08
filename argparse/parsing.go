@@ -61,7 +61,7 @@ func ProcessArguments(args []string, configs Arguments, prefix, sign string, siz
 	for _, config := range configs {
 		config.CurrentValue = config.DefaultValue
 	}
-	if len(args) < 2 { return }
+	if len(args) < 1 { return }
 	for _, fullArg := range args {
 		arg, val := ValidateAndExtractArgument(fullArg, prefix, sign, size)
 		var config *ArgumentConfig
