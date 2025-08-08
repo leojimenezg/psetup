@@ -59,7 +59,7 @@ type ItemConfig struct {
 	TemplatePath string
 }
 
-type Configs []*ItemConfig
+type Configs []ItemConfig
 
 func CreateFile(item ItemConfig) error {
 	if item.Type != FILE { return InvalidTypeError{ Type: item.Type } }
@@ -81,21 +81,20 @@ func CreateFile(item ItemConfig) error {
 	} else {
 		fileContent = nil
 	}
-	errFile := os.WriteFile(fullPath, fileContent, 0644)
+	errFile := os.WriteFile(fullPath, fileContent, 0644)  // Filemode: permissions and attributes.
 	if errFile != nil { return CreationError{ Name: item.Name, Path: fullPath, Err: errFile } }
 	return nil
 }
 
-// func CreateDirectory(config *ItemConfig) error {
-// }
-//
-// func CreateItem(config *ItemConfig) bool {
-// 	switch (config.Type) {
-// 	case FILE:
-// 		return CreateFile(config)
-// 	case DIR:
-// 		return CreateDirectory(config)
-// 	default:
-// 		return false
-// 	}
-// }
+func CreateDirectory(item ItemConfig) error {
+	if item.Type != DIR { return InvalidTypeError{ Type: item.Type } }
+	fullPath := filepath.Join(item.CreationPath, item.Name)
+	errDir := os.MkdirAll(fullPath, 0755)
+	if errDir != nil { return CreationError{ Name: item.Name, Path: fullPath, Err: errDir } }
+	return nil
+}
+
+// TODO: Complete function to iterate on a slice of items.
+func CreateItems(items *Configs) error {
+	return nil
+}

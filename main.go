@@ -41,13 +41,21 @@ func main() {
 		},
 	}
 	argparse.ProcessArguments(commandLineArgs, arguments, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
-	item := itemgen.ItemConfig{
-		Name: "test", Extension: "txt", Type: itemgen.FILE, 
-		CreationPath: "./", TemplatePath: "./templates/ignore.txt",
+	item1 := itemgen.ItemConfig{ Name: "test", Type: itemgen.DIR, CreationPath: "./", }
+	errDir := itemgen.CreateDirectory(item1)
+	if errDir == nil {
+		fmt.Println("directory created successfully")
+		item2 := itemgen.ItemConfig{
+			Name: "test", Extension: "txt", Type: itemgen.FILE, 
+			CreationPath: item1.CreationPath + "/" + item1.Name, TemplatePath: "./templates/ignore.txt",
+		}
+		errFile := itemgen.CreateFile(item2)
+		if errFile != nil {
+			fmt.Printf("could not create file: %v\n", errFile)
+		} else {
+			fmt.Println("file created successfully")
+		}
+	} else {
+		fmt.Printf("could not creat directory: %v\n", errDir)
 	}
-	errItem := itemgen.CreateFile(item)
-	if errItem != nil {
-		fmt.Printf("could not create file: %v\n", errItem)
-	}
-	fmt.Println("file created successfully")
 }
