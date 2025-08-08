@@ -2,7 +2,9 @@ package main
 
 import (
 	"os"
+	"fmt"
 	"github.com/leojimenezg/psetup/argparse"
+	"github.com/leojimenezg/psetup/itemgen"
 )
 
 const OPTION_PREFIX = "-"
@@ -39,4 +41,13 @@ func main() {
 		},
 	}
 	argparse.ProcessArguments(commandLineArgs, arguments, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
+	item := itemgen.ItemConfig{
+		Name: "test", Extension: "txt", Type: itemgen.FILE, 
+		CreationPath: "./", TemplatePath: "./templates/ignore.txt",
+	}
+	errItem := itemgen.CreateFile(item)
+	if errItem != nil {
+		fmt.Printf("could not create file: %v\n", errItem)
+	}
+	fmt.Println("file created successfully")
 }
