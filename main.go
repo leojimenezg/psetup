@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"fmt"
+	"path/filepath"
 	"github.com/leojimenezg/psetup/argparse"
 	"github.com/leojimenezg/psetup/itemgen"
 )
@@ -12,70 +13,80 @@ const OPTION_SIZE = 3
 const OPTION_SIGN = "="
 
 func main() {
+	nameArg := argparse.ArgumentConfig{
+		Name: OPTION_PREFIX + "nme",
+		DefaultValue: "new-project",
+		AllowedValues: []string { argparse.ANY },
+	}
+	routeArg := argparse.ArgumentConfig{
+		Name: OPTION_PREFIX + "rte",
+		DefaultValue: "./",
+		AllowedValues: []string { argparse.ANY },
+	}
+	languageArg := argparse.ArgumentConfig{
+		Name: OPTION_PREFIX + "lng",
+		DefaultValue: "go",
+		AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r", "txt" },
+	}
+	licenseArg := argparse.ArgumentConfig{
+		Name: OPTION_PREFIX + "lic",
+		DefaultValue: "mit",
+		AllowedValues: []string { "mit", "apache" },
+	}
+	documentsArg := argparse.ArgumentConfig{
+		Name: OPTION_PREFIX + "dcs",
+		DefaultValue: "all",
+		AllowedValues: []string { "all", "license", "ignore", "readme" },
+	}
 	commandLineArgs := os.Args[1:]
-	arguments := argparse.Arguments{
-		&argparse.ArgumentConfig{
-			Name: OPTION_PREFIX + "nme",
-			DefaultValue: "new-project",
-			AllowedValues: []string { argparse.ANY },
-		},
-		&argparse.ArgumentConfig{
-			Name: OPTION_PREFIX + "rte",
-			DefaultValue: "./",
-			AllowedValues: []string { argparse.ANY },
-		},
-		&argparse.ArgumentConfig{
-			Name: OPTION_PREFIX + "lng",
-			DefaultValue: "go",
-			AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r", "txt" },
-		},
-		&argparse.ArgumentConfig{
-			Name: OPTION_PREFIX + "lic",
-			DefaultValue: "mit",
-			AllowedValues: []string { "mit", "apache" },
-		},
-		&argparse.ArgumentConfig{
-			Name: OPTION_PREFIX + "dcs",
-			DefaultValue: "all",
-			AllowedValues: []string { "all", "license", "ignore", "readme" },
-		},
-	}
-	argparse.ProcessArguments(commandLineArgs, arguments, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
-	var rteArg argparse.ArgumentConfig
-	var lngArg argparse.ArgumentConfig
-	for _, arg := range arguments {
-		if arg.Name == "-rte" { rteArg = *arg }
-		if arg.Name == "-lng" { lngArg = *arg }
-	}
+	argumentsConfigs := argparse.Arguments{ &nameArg, &routeArg, &languageArg, &licenseArg, &documentsArg }
+	argparse.ProcessArguments(commandLineArgs, argumentsConfigs, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
+	projectDir := filepath.Join(routeArg.CurrentValue, nameArg.CurrentValue)
 	directories := itemgen.Configs{
-		{ Name: "dir1", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
-		{ Name: "dir2", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
-		{ Name: "dir3", Type: itemgen.DIR, CreationPath: rteArg.CurrentValue },
+		{ Name: "src", Type: itemgen.DIR, CreationPath: projectDir },
+		{ Name: "tests", Type: itemgen.DIR, CreationPath: projectDir },
+		{ Name:	"assets", Type: itemgen.DIR, CreationPath: projectDir },
+		{ Name:	"data", Type: itemgen.DIR, CreationPath: filepath.Join(projectDir, "assets") },
+		{ Name:	"images", Type: itemgen.DIR, CreationPath: filepath.Join(projectDir, "assets") },
 	}
-	files := itemgen.Configs{
-		{ 
-			Name: "file1", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
-			CreationPath: rteArg.CurrentValue + "/dir1", TemplatePath: "./templates/ignore.txt",
-		},
-		{ 
-			Name: "file2", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
-			CreationPath: rteArg.CurrentValue + "/dir2", TemplatePath: "./templates/readme.txt",
-		},
-		{ 
-			Name: "file3", Extension: lngArg.CurrentValue, Type: itemgen.FILE, 
-			CreationPath: rteArg.CurrentValue + "/dir3", TemplatePath: "./templates/license/mit.txt",
-		},
+	errsDir := itemgen.CreateItems(directories)
+	if errsDir != nil { fmt.Printf("could not create all directories: %v\n", errsDir) }
+	var files itemgen.Configs
+	mainFile := itemgen.ItemConfig{
+		Name: "main", Extension: languageArg.CurrentValue, Type: itemgen.FILE,
+		CreationPath: filepath.Join(projectDir, "src"), TemplatePath: "" }
+	files = append(files, mainFile)
+	switch documentsArg.CurrentValue {
+	case "license":
+		licenceFile := itemgen.ItemConfig{
+			Name: "LICENSE", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "./templates/license/" + licenseArg.CurrentValue + ".txt" }
+		files = append(files, licenceFile)
+	case "ignore":
+		ignoreFile := itemgen.ItemConfig{
+			Name: ".gitignore", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "./templates/ignore.txt" }
+		files = append(files, ignoreFile)
+	case "readme":
+		readmeFile := itemgen.ItemConfig{ 
+			Name: "README", Extension: "md", Type: itemgen.FILE,
+			CreationPath: projectDir, TemplatePath: "./templates/readme.txt" }
+		files = append(files, readmeFile)
+	default:
+		licenceFile := itemgen.ItemConfig{
+			Name: "LICENSE", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "./templates/license/" + licenseArg.CurrentValue + ".txt" }
+		files = append(files, licenceFile)
+		ignoreFile := itemgen.ItemConfig{
+			Name: ".gitignore", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "./templates/ignore.txt" }
+		files = append(files, ignoreFile)
+		readmeFile := itemgen.ItemConfig{ 
+			Name: "README", Extension: "md", Type: itemgen.FILE,
+			CreationPath: projectDir, TemplatePath: "./templates/readme.txt" }
+		files = append(files, readmeFile)
 	}
-	errDirs := itemgen.CreateItems(directories)
-	if errDirs != nil {
-		fmt.Printf("could not create all directories: %v", errDirs)
-		return
-	}
-	fmt.Println("all directories successfully created")
-	errFiles := itemgen.CreateItems(files)
-	if errFiles != nil {
-		fmt.Printf("could not create all files: %v", errFiles)
-		return
-	}
-	fmt.Println("all files successfully created")
+	errsFiles := itemgen.CreateItems(files)
+	if errsFiles != nil { fmt.Printf("could not create all files: %v\n", errsFiles) }
+	fmt.Println("psetup: project structure successfully created!")
 }
