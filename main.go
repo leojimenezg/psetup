@@ -13,7 +13,7 @@ const OPTION_SIGN = "="
 
 func main() {
 	commandLineArgs := os.Args[1:]
-	arguments := argparse.Arguments {
+	arguments := argparse.Arguments{
 		&argparse.ArgumentConfig{
 			Name: OPTION_PREFIX + "nme",
 			DefaultValue: "new-project",
