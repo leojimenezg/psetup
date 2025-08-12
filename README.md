@@ -6,17 +6,29 @@ Go CLI tool for rapidly setting up simple project structures with customizable t
 * **Quick project scaffolding** with predefined directory structures
 * **Multi-language support** for different project types (Go, Python, C++, JavaScript, etc.)
 * **Template-based file generation** with customizable content
+* **Embedded filesystem** to remove any external file dependencies
 * **License integration** with MIT and Apache options
 * **Flexible documentation setup** with README, .gitignore, and license files
 * **Configurable project** location and naming
 
 ## Installation
-**Note:** Currently, the only available way to use this project is by clonning the repository.
+**Note:** To use this project, you can either clone the entire repository, or download the binary from the . However this binary is exclusively compiled for macOS, for now.
 
-To get this project up and runnig on your local machine, follow the next instructions.
-### Prerequisites
+### Option 1: Download binary (recommended)
+1. **Download the binary:** Visit the release [psetup v1.1.0](https://github.com/leojimenezg/psetup/releases/tag/v1.1.0) and download the `psetup-macos-arm64` binary.
+2. **Make it executable in your system:**
+    ```bash
+    chmod +x psetup
+    ```
+3. **Run the program:**
+    ```bash
+    ./psetup -nme=my-project -rte=./ -lng=go -lic=mit -dcs=all
+    ```
+
+### Option 2: Build from source
+#### Prerequisites
 Before anything else, make sure you have installed **Go 1.24.X** or a newer version in your system.
-### Steps
+#### Steps
 1. **Clone the repository:**
 Open your prefered terminal and clone the project to your local machine.
     ```bash
@@ -53,20 +65,22 @@ your-project/
 │   └── main.{lng}          # Main file with specified language/extension
 ├── tests/                  # Tests directory
 ├── assets/
-│   ├── data/              # Data files directory
-│   └── images/            # Image assets directory
-├── README.md              # Project documentation (if requested)
-├── .gitignore            # Git ignore file (if requested)
-└── LICENSE               # License file (if requested)
+│   ├── data/               # Data files directory
+│   └── images/             # Image assets directory
+├── README.md               # Project documentation (if requested)
+├── .gitignore              # Git ignore file (if requested)
+└── LICENSE                 # License file (if requested)
 ```
 
 ## Templates
-psetup uses template files for consistent content generation:
-* **License templates**: Pre-configured MIT and Apache 2.0 licenses
-* **README template**: Basic project documentation structure
-* **Gitignore template**: Common ignore patterns for various environments
+**Embedded templates:** Virtual filesystem to embed the templates in the resulting binary for complete portability.
 
-Template files are located in the `templates/` directory and can be customized as needed.
+psetup uses an embedded filesystem containing template files for consistent content generation:
+* **License templates:** Pre-configured MIT and Apache 2.0 licenses
+* **README template:** Basic project documentation structure
+* **Gitignore template:** Common ignore patterns for various environments
+
+Templates are embedded directly into the binary using Go's `embed` package, eliminating external dependencies and ensuring the tool works anywhere without additional setup.
 
 ## Notes
 * All configurations have sensible defaults for immediate usage
@@ -78,5 +92,6 @@ Template files are located in the `templates/` directory and can be customized a
 ## Useful Resources
 
 * [Go Documentation](https://golang.org/doc/) - Official Go programming language documentation
+* [Go embed Package](https://pkg.go.dev/embed) - Official Go embed package documentation
 * [argparse Documentation](./argparse/README.md) - Detailed argparse package documentation
 * [itemgen Documentation](./itemgen/README.md) - Detailed itemgen package documentation
