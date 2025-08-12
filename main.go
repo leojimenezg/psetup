@@ -3,10 +3,14 @@ package main
 import (
 	"os"
 	"fmt"
+	"embed"
 	"path/filepath"
 	"github.com/leojimenezg/psetup/argparse"
 	"github.com/leojimenezg/psetup/itemgen"
 )
+
+//go:embed templates/*.txt templates/license/*.txt
+var templatesFS embed.FS
 
 const OPTION_PREFIX = "-"
 const OPTION_SIZE = 3
@@ -42,7 +46,7 @@ func main() {
 	argumentsConfigs := argparse.Arguments{ &nameArg, &routeArg, &languageArg, &licenseArg, &documentsArg }
 	argparse.ProcessArguments(commandLineArgs, argumentsConfigs, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
 	projectDir := filepath.Join(routeArg.CurrentValue, nameArg.CurrentValue)
-	directories := itemgen.Configs{
+	directories := itemgen.Items{
 		{ Name: "src", Type: itemgen.DIR, CreationPath: projectDir },
 		{ Name: "tests", Type: itemgen.DIR, CreationPath: projectDir },
 		{ Name:	"assets", Type: itemgen.DIR, CreationPath: projectDir },
@@ -50,43 +54,43 @@ func main() {
 		{ Name:	"images", Type: itemgen.DIR, CreationPath: filepath.Join(projectDir, "assets") },
 	}
 	errsDir := itemgen.CreateItems(directories)
-	if errsDir != nil { fmt.Printf("could not create all directories: %v\n", errsDir) }
-	var files itemgen.Configs
+	if errsDir != nil { fmt.Printf("could not create all directories: %v\n", errsDir); return }
+	// Files are gotten from the Virtual File System (embed.FS)
+	var files itemgen.Items
 	mainFile := itemgen.ItemConfig{
 		Name: "main", Extension: languageArg.CurrentValue, Type: itemgen.FILE,
-		CreationPath: filepath.Join(projectDir, "src"), TemplatePath: "" }
+		CreationPath: filepath.Join(projectDir, "src") }
 	files = append(files, mainFile)
 	switch documentsArg.CurrentValue {
 	case "license":
 		licenceFile := itemgen.ItemConfig{
-			Name: "LICENSE", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
-			TemplatePath: "./templates/license/" + licenseArg.CurrentValue + ".txt" }
+			Name: "LICENSE", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "templates/license/" + licenseArg.CurrentValue + ".txt" }
 		files = append(files, licenceFile)
 	case "ignore":
 		ignoreFile := itemgen.ItemConfig{
-			Name: ".gitignore", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
-			TemplatePath: "./templates/ignore.txt" }
+			Name: ".gitignore", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "templates/ignore.txt" }
 		files = append(files, ignoreFile)
 	case "readme":
 		readmeFile := itemgen.ItemConfig{ 
 			Name: "README", Extension: "md", Type: itemgen.FILE,
-			CreationPath: projectDir, TemplatePath: "./templates/readme.txt" }
+			CreationPath: projectDir, TemplatePath: "templates/readme.txt" }
 		files = append(files, readmeFile)
 	default:
 		licenceFile := itemgen.ItemConfig{
-			Name: "LICENSE", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
-			TemplatePath: "./templates/license/" + licenseArg.CurrentValue + ".txt" }
+			Name: "LICENSE", Type: itemgen.FILE, CreationPath: projectDir,
+			TemplatePath: "templates/license/" + licenseArg.CurrentValue + ".txt" }
 		files = append(files, licenceFile)
 		ignoreFile := itemgen.ItemConfig{
-			Name: ".gitignore", Extension: "", Type: itemgen.FILE, CreationPath: projectDir,
-			TemplatePath: "./templates/ignore.txt" }
+			Name: ".gitignore", Type: itemgen.FILE, CreationPath: projectDir, TemplatePath: "templates/ignore.txt" }
 		files = append(files, ignoreFile)
 		readmeFile := itemgen.ItemConfig{ 
 			Name: "README", Extension: "md", Type: itemgen.FILE,
-			CreationPath: projectDir, TemplatePath: "./templates/readme.txt" }
+			CreationPath: projectDir, TemplatePath: "templates/readme.txt" }
 		files = append(files, readmeFile)
 	}
-	errsFiles := itemgen.CreateItems(files)
+	errsFiles := itemgen.CreateItemsEmbed(files, &templatesFS)
 	if errsFiles != nil { fmt.Printf("could not create all files: %v\n", errsFiles) }
 	fmt.Println("psetup: project structure successfully created!")
 }
