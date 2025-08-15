@@ -1,10 +1,11 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"embed"
+	"fmt"
+	"os"
 	"path/filepath"
+	"slices"
 	"github.com/leojimenezg/psetup/argparse"
 	"github.com/leojimenezg/psetup/itemgen"
 )
@@ -17,29 +18,29 @@ const OPTION_SIZE = 3
 const OPTION_SIGN = "="
 
 func main() {
-	nameArg := argparse.ArgumentConfig{
+	nameArg := argparse.MultiValueArg{
 		Name: OPTION_PREFIX + "nme",
-		DefaultValue: "new-project",
+		DefaultValues: []string{ "new-project" },
 		AllowedValues: []string { argparse.ANY } }
-	routeArg := argparse.ArgumentConfig{
+	routeArg := argparse.MultiValueArg{
 		Name: OPTION_PREFIX + "rte",
-		DefaultValue: "./",
+		DefaultValues: []string{ "./" },
 		AllowedValues: []string { argparse.ANY } }
-	languageArg := argparse.ArgumentConfig{
+	languageArg := argparse.MultiValueArg{
 		Name: OPTION_PREFIX + "lng",
-		DefaultValue: "go",
+		DefaultValues: []string{ "go" },
 		AllowedValues: []string { "py", "c", "java", "go", "cpp", "lua", "js", "r", "txt" } }
-	licenseArg := argparse.ArgumentConfig{
+	licenseArg := argparse.MultiValueArg{
 		Name: OPTION_PREFIX + "lic",
-		DefaultValue: "mit",
+		DefaultValues: []string{ "mit" },
 		AllowedValues: []string { "mit", "apache" } }
-	documentsArg := argparse.ArgumentConfig{
+	documentsArg := argparse.MultiValueArg{
 		Name: OPTION_PREFIX + "dcs",
-		DefaultValue: "all",
+		DefaultValues: []string{ "all" },
 		AllowedValues: []string { "all", "license", "ignore", "readme" } }
-	argumentsConfigs := argparse.Arguments{ &nameArg, &routeArg, &languageArg, &licenseArg, &documentsArg }
-	argparse.ProcessArguments(os.Args[1:], argumentsConfigs, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
-	projectDir := filepath.Join(routeArg.CurrentValue, nameArg.CurrentValue)
+	argumentsConfigs := argparse.MultiArgs{ &nameArg, &routeArg, &languageArg, &licenseArg, &documentsArg }
+	argparse.ProcessMultiValueArgs(os.Args[1:], argumentsConfigs, OPTION_PREFIX, OPTION_SIGN, OPTION_SIZE)
+	projectDir := filepath.Join(routeArg.CurrentValues[0], nameArg.CurrentValues[0])
 	directories := itemgen.Items{
 		{ Name: "src", Type: itemgen.DIR, CreationPath: projectDir },
 		{ Name: "tests", Type: itemgen.DIR, CreationPath: projectDir },
@@ -50,11 +51,11 @@ func main() {
 	if errsDir != nil { fmt.Printf("could not create all directories: %v\n", errsDir); return }
 	documentsConfigs := map[string]itemgen.ItemConfig{
 		"main": {
-			Name: "main", Extension: languageArg.CurrentValue, Type: itemgen.FILE,
+			Name: "main", Extension: languageArg.CurrentValues[0], Type: itemgen.FILE,
 			CreationPath: filepath.Join(projectDir, "src") },
 		"license": {
 			Name: "LICENSE", Type: itemgen.FILE, CreationPath: projectDir,
-			TemplatePath: "templates/license/" + licenseArg.CurrentValue + ".txt" },
+			TemplatePath: "templates/license/" + licenseArg.CurrentValues[0] + ".txt" },
 		"ignore": {
 			Name: ".gitignore", Type: itemgen.FILE, CreationPath: projectDir,
 			TemplatePath: "templates/ignore.txt" },
@@ -63,10 +64,10 @@ func main() {
 			TemplatePath: "templates/readme.txt" } }
 	var files itemgen.Items
 	files = append(files, documentsConfigs["main"])
-	for _, value := range documentsArg.AllowedValues {
-		if value == "all" { continue }
-		if documentsArg.CurrentValue != "all" && documentsArg.CurrentValue != value { continue }
-		files = append(files, documentsConfigs[value])
+	all := slices.Contains(documentsArg.CurrentValues, "all")
+	for _, document := range documentsArg.AllowedValues[1:] {
+		if !all { if !slices.Contains(documentsArg.CurrentValues, document) { continue } }
+		files = append(files, documentsConfigs[document])
 	}
 	errsFiles := itemgen.CreateItemsEmbed(files, &templatesFS)
 	if errsFiles != nil { fmt.Printf("could not create all files: %v\n", errsFiles) }
