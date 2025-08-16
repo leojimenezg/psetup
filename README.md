@@ -8,14 +8,15 @@ Go CLI tool for rapidly setting up simple project structures with customizable t
 * **Template-based file generation** with customizable content
 * **Embedded filesystem** to remove any external file dependencies
 * **License integration** with MIT and Apache options
-* **Flexible documentation setup** with README, .gitignore, and license files
+* **Multiple value arguments** for selecting multiple documentation types in a single command
+* **Flexible documentation setup** with selective generation of README, .gitignore, and license files
 * **Configurable project** location and naming
 
 ## Installation
-**Note:** To use this project, you can either clone the entire repository, or download the binary from the . However this binary is exclusively compiled for macOS, for now.
+**Note:** To use this project, you can either clone the entire repository, or download the executable binary. However this binary is exclusively compiled for macOS, for now.
 
 ### Option 1: Download binary (recommended)
-1. **Download the binary:** Visit the release [psetup v1.1.0](https://github.com/leojimenezg/psetup/releases/tag/v1.1.0) and download the `psetup-macos-arm64` binary.
+1. **Download the binary:** Visit the release [psetup v2.0.0](https://github.com/leojimenezg/psetup/releases/tag/v2.0.0) and download the `psetup-macos-arm64` binary.
 2. **Make it executable in your system:**
     ```bash
     chmod +x psetup
@@ -58,7 +59,7 @@ Finally, execute the binary to launch the psetup program.
 | `-dcs` | Documents to include | `all` | `all`, `license`, `ignore`, `readme` |
 
 ## Generated structure
-psetup may create the following project structure:
+The program may create the following project structure:
 ```
 your-project/
 ├── src/
