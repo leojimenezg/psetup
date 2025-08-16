@@ -13,14 +13,13 @@ Go CLI tool for rapidly setting up simple project structures with customizable t
 * **Configurable project** location and naming
 
 ## Installation
-**Note:** To use this project, you can either clone the entire repository, or download the executable binary. However this binary is exclusively compiled for macOS, for now.
+**Note:** Cross-compiled binaries are provided in the latest release for convenience but haven't been tested on all target platforms. If you encounter issues, please report them or build from source.
 
 ### Option 1: Download binary (recommended)
-1. **Download the binary:** Visit the release [psetup v2.0.0](https://github.com/leojimenezg/psetup/releases/tag/v2.0.0) and download the `psetup-macos-arm64` binary.
-2. **Make it executable in your system:**
-    ```bash
-    chmod +x psetup
-    ```
+1. **Download appropiate binary:** Visit the release [psetup v2.0.0](https://github.com/leojimenezg/psetup/releases/tag/v2.0.0) and download the binary you need.
+2. **Setup:**
+   * **Linux/macOS:** Make executable with `chmod +x psetup`
+   * **Windows:** Run the `.exe` directly
 3. **Run the program:**
     ```bash
     ./psetup -nme=my-project -rte=./ -lng=go -lic=mit -dcs=all
@@ -87,6 +86,7 @@ Templates are embedded directly into the binary using Go's `embed` package, elim
 * All configurations have sensible defaults for immediate usage
 * Invalid arguments fall back to default values rather than causing errors
 * The tool ensures all parent directories exist before creating files
+* As mentioned in a previous section of this file, I have compiled the project to different platforms, however, I can not guarantee they all work properly, as I haven't tested them all
 * This project has a previous version made in Lua [project-basic-setup](https://github.com/leojimenezg/project-basic-setup), where the problem was very strictly solved.
 * This new version was designed to be as flexible and modular as possible. Also, this was my first project made in Go, so I don't expect it to be perfect
 
