@@ -1,26 +1,17 @@
-# placeholder
+# [TITLE]
 
 
+## Features
 
----
 
 ## Installation
 
 
+## Get Started 
 
----
-
-## How Does It  Work?
-
-
-
----
 
 ## Notes
 
-
-
----
 
 ## Useful Resources
 
