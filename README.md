@@ -16,7 +16,7 @@ Go CLI tool for rapidly setting up simple project structures with customizable t
 **Note:** Cross-compiled binaries are provided in the latest release for convenience but haven't been tested on all target platforms. If you encounter issues, please report them or build from source.
 
 ### Option 1: Download binary (recommended)
-1. **Download appropiate binary:** Visit the release [psetup v2.0.0](https://github.com/leojimenezg/psetup/releases/tag/v2.0.0) and download the binary you need.
+1. **Download appropiate binary:** Visit the release [psetup v2.1.0](https://github.com/leojimenezg/psetup/releases/tag/v2.1.0) and download the binary you need.
 2. **Setup:**
    * **Linux/macOS:** Make executable with `chmod +x psetup`
    * **Windows:** Run the `.exe` directly
@@ -38,14 +38,14 @@ Open your prefered terminal and clone the project to your local machine.
     ```bash
     cd psetup
     ```
-3. **Compile the project:**
+3. **Compile and install the project:**
     ```bash
-    go build .
+    go install .
     ```
 4. **Run the Application:**
 Finally, execute the binary to launch the psetup program.
     ```bash
-    ./psetup -nme=my-project -rte=./ -lng=go -lic=mit -dcs=all
+    psetup -nme=my-project -rte=./ -lng=go -lic=mit -dcs=all
     ```
 
 ## Command-line options
