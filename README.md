@@ -64,9 +64,8 @@ your-project/
 ├── src/
 │   └── main.{lng}          # Main file with specified language/extension
 ├── tests/                  # Tests directory
-├── assets/
-│   ├── data/               # Data files directory
-│   └── images/             # Image assets directory
+├── data/                   # Data files directory
+├── public/                 # Public files directory
 ├── README.md               # Project documentation (if requested)
 ├── .gitignore              # Git ignore file (if requested)
 └── LICENSE                 # License file (if requested)
