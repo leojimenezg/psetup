@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="./assets/logo.svg" height="200px" width="200px" alt="scapmi" >
+</p>
+
 # psetup
 
 Go CLI tool for rapidly setting up simple project structures with customizable templates, automating directory creation and basic file generation for streamlined development workflows.
