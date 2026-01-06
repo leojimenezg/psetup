@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="./assets/logo.svg" height="200px" width="200px" alt="scapmi" >
+    <img src="./assets/logo.svg" height="200px" width="200px" alt="psetup-logo" >
 </p>
 
 # psetup
